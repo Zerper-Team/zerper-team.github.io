@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZerperTeam - 开源Python开发团队</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --light-bg: #ffffff;
+            --light-text: #333333;
+            --light-card: #f8f9fa;
+            --dark-bg: #121826;
+            --dark-text: #e6e8ec;
+            --dark-card: #1e293b;
+            --accent: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f2f5 0%, #e6e9ef 100%);
+            color: var(--light-text);
+            min-height: 100vh;
+            transition: all 0.5s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0b0f18 0%, #161b28 100%);
+            color: var(--dark-text);
+        }
+
+        /* 浮动形状 */
+        .floating-shape {
+            position: fixed;
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.15;
+            filter: blur(60px);
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary-color);
+            top: 10%;
+            left: 5%;
+            animation: float 18s infinite alternate;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent);
+            bottom: 15%;
+            right: 8%;
+            animation: float 14s infinite alternate-reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+            padding: 30px 20px;
+            transition: transform 0.4s ease;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        body.dark-mode .sidebar {
+            background: rgba(18, 24, 38, 0.85);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .sidebar-logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--light-card);
+            transform: translateX(10px);
+        }
+
+        body.dark-mode .nav-item {
+            color: var(--dark-text);
+        }
+
+        body.dark-mode .nav-item:hover {
+            background: var(--dark-card);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 22px;
+            width: 30px;
+            text-align: center;
+        }
+
+        /* 主内容区 */
+        .container {
+            margin-left: 280px;
+            padding: 60px 5% 80px;
+            max-width: 1200px;
+        }
+
+        /* 页眉 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s ease;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            max-width: 600px;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .theme-toggle {
+            background: var(--light-card);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: var(--dark-card);
+            color: var(--accent);
+        }
+
+        /* 团队卡片 */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .team-card {
+            background: var(--light-card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s ease;
+            animation: fadeInUp 0.8s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        body.dark-mode .team-card {
+            background: var(--dark-card);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .team-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+
+        body.dark-mode .team-card p {
+            color: #a3a8b9;
+        }
+
+        /* 项目下载区 */
+        .download-section {
+            margin: 80px 0;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+            color: var(--light-text);
+        }
+
+        body.dark-mode .section-title {
+            color: var(--dark-text);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 50px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent));
+            border-radius: 2px;
+        }
+        
+        .coming-soon {
+            text-align: center;
+            padding: 50px;
+            background: rgba(74, 108, 247, 0.05);
+            border-radius: 16px;
+            animation: fadeIn 1s ease 0.4s both;
+        }
+
+        body.dark-mode .coming-soon {
+            background: rgba(74, 108, 247, 0.1);
+        }
+
+        .coming-soon i {
+            font-size: 5rem;
+            color: var(--primary-color);
+            opacity: 0.7;
+            margin-bottom: 30px;
+        }
+
+        .coming-soon h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .coming-soon p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        body.dark-mode .coming-soon p {
+            color: #a3a8b9;
+        }
+
+        /* 邮箱部分 */
+        .email-section {
+            margin-top: 70px;
+            text-align: center;
+            padding: 30px;
+            border-radius: 16px;
+            background: var(--light-card);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 1s ease 0.4s both;
+        }
+
+        body.dark-mode .email-section {
+            background: var(--dark-card);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .email-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .email-link {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .email-link:hover {
+            background: rgba(74, 108, 247, 0.1);
+            transform: scale(1.05);
+            border-color: rgba(74, 108, 247, 0.3);
+        }
+
+        body.dark-mode .email-link:hover {
+            background: rgba(74, 108, 247, 0.15);
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .container {
+                margin-left: 0;
+                padding: 100px 5% 80px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .theme-toggle {
+                margin-top: 20px;
+                align-self: flex-start;
+            }
+            
+            .coming-soon {
+                padding: 30px;
+            }
+            
+            .coming-soon i {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 浮动背景形状 -->
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    
+    <!-- 侧边栏导航 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">ZerperTeam</div>
+            <p>开源Python开发团队</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <a href="#team" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>团队介绍</span>
+            </a>
+            <a href="#projects" class="nav-item">
+                <i class="fas fa-project-diagram"></i>
+                <span>项目总览</span>
+            </a>
+            <a href="#email" class="nav-item">
+                <i class="fas fa-envelope"></i>
+                <span>联系我们</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 class="page-title">ZerperTeam</h1>
+                <p class="subtitle">一个由Python爱好者组成的开源开发团队，致力于创建创新、高效的开源应用。</p>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        
+        <!-- 团队介绍部分 -->
+        <div class="team-section" id="team">
+            <div class="team-grid">
+                <div class="team-card" style="animation-delay: 0.2s">
+                    <h3>项目主管</h3>
+                    <p><strong>PXO_LYC</strong></p>
+                    <p>全栈Python工程师</p>
+                    <p>负责项目架构设计和技术决策</p>
+                </div>
+                
+                <div class="team-card" style="animation-delay: 0.4s">
+                    <h3>内测负责人</h3>
+                    <p><strong>PXO_LZL</strong></p>
+                    <p>QA与测试专家</p>
+                    <p>负责质量保障与用户体验优化</p>
+                </div>
+                
+                <div class="team-card" style="animation-delay: 0.6s">
+                    <h3>开发团队</h3>
+                    <p><strong>Python爱好者社区</strong></p>
+                    <p>来自全国各地的开源贡献者</p>
+                    <p>共同协作的开源开发者</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 项目总览部分 -->
+        <div class="download-section" id="projects">
+            <h2 class="section-title">项目总览</h2>
+            <div class="coming-soon">
+                <i class="fas fa-code-branch"></i>
+                <h3>项目更新中</h3>
+                <p>我们正在准备更多优质的开源项目，即将上线</p>
+            </div>
+        </div>
+        
+        <!-- 团队邮箱 -->
+        <div class="email-section" id="email">
+            <h2>联系我们</h2>
+            <a href="mailto:zerper-team@github.com" class="email-link">
+                <i class="fas fa-envelope"></i> zerper-team@github.com
+            </a>
+            <p style="margin-top: 20px; color: #666;">开源协作 · 技术交流 · 项目贡献</p>
+        </div>
+    </div>
+    
+    <script>
+        // 深色模式切换
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        });
+    </script>
+</body>
+</html>
